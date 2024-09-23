@@ -1,6 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-
+const path = require('path');
 
 const app = express();
 const port = 3001;
@@ -12,6 +13,12 @@ app.use(cors());
 // 게임 라우트 설정
 const gameRoutes = require('./routes/gameRoutes');
 app.use('/game', gameRoutes);
+
+// HTML 파일 제공
+app.use(express.static(path.join(__dirname, 'public')));
+//네이버 지도 api
+const naverRoutes = require('./routes/mapRoutes');
+app.use('/api/naver', naverRoutes);
 
 // 기본 루트
 app.get('/', (req, res) => {
