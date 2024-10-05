@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대중교통 길찾기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        input[type="text"], button {
+            padding: 10px;
+            margin: 10px;
+            width: 80%;
+            font-size: 16px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>대중교통 길찾기</h1>
+        <form id="transit-form">
+            <input type="text" id="origin" placeholder="출발지 입력 (예: 서울시청)" required><br>
+            <input type="text" id="destination" placeholder="도착지 입력 (예: 부천역)" required><br>
+            <button type="submit">경로 찾기</button>
+        </form>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        document.getElementById('transit-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '경로를 검색 중입니다...';
+
+            try {
+                // Fetch 요청으로 서버에 주소 검색 요청
+                const response = await fetch(`/transit/directions?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 결과를 보기 쉽게 JSON 포맷으로 출력
+                    resultsDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    resultsDiv.innerHTML = `에러: ${data.error}`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `요청 중 오류 발생: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
