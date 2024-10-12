@@ -1,7 +1,9 @@
 require('dotenv').config();
+const axios = require('axios');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const router = express.Router();
 //const bodyParser = require('body-parser');
 
 
@@ -51,12 +53,35 @@ app.get('/api/findRoute', async (req, res) => {
           res.status(404).json({ error: 'No route found for the given coordinates.' });
       }
   } catch (error) {
-      console.error('Transit route finding error:', error);
+      console.error('Transit route finding error:', error.message);  // 상세 에러 메시지 출력
       res.status(500).json({ error: 'Internal server error.' });
   }
 });
 
 
+// app.get('/api/findRoute', async (req, res) => {
+//   const { startX, startY, endX, endY } = req.query;
+//   try {
+//     const route = await findTransitRoutes(startX, startY, endX, endY);
+//     res.json(route); // JSON 데이터 반환
+//   } catch (error) {
+//     console.error('Transit route finding error:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+// router.get('/searchRoute', async (req, res) => {
+//   const { sx, sy, ex, ey } = req.query;
+//   try {
+//       const mapObj = await searchPubTransPath(sx, sy, ex, ey);
+//       const laneData = await loadLane(mapObj);
+//       res.json(laneData);
+//   } catch (error) {
+//       res.status(500).send({ error: error.message });
+//   }
+// });
+
+app.use('/api', router);
 // Middleware
 //app.use(bodyParser.json());
 //app.use(bodyParser.urlencoded({ extended: true }));
@@ -76,7 +101,7 @@ app.use(express.static('public')); // 정적 파일 제공
 //app.use('/api/directions', require('./routes/direction')); // 대중교통 경로 API 라우트
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'odsay.html'));
 });
 
 console.log('Routes initialized:');
