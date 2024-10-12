@@ -4,10 +4,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const router = express.Router();
-//const bodyParser = require('body-parser');
 
 
-//const mapRoutes = require('./routes/mapRoutes');
 const userRoutes = require('./routes/userRoutes');
 const getCoordinates = require('./api/geocoding');
 const findTransitRoutes = require('./api/transitRoute');
@@ -59,53 +57,25 @@ app.get('/api/findRoute', async (req, res) => {
 });
 
 
-// app.get('/api/findRoute', async (req, res) => {
-//   const { startX, startY, endX, endY } = req.query;
-//   try {
-//     const route = await findTransitRoutes(startX, startY, endX, endY);
-//     res.json(route); // JSON 데이터 반환
-//   } catch (error) {
-//     console.error('Transit route finding error:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
-// router.get('/searchRoute', async (req, res) => {
-//   const { sx, sy, ex, ey } = req.query;
-//   try {
-//       const mapObj = await searchPubTransPath(sx, sy, ex, ey);
-//       const laneData = await loadLane(mapObj);
-//       res.json(laneData);
-//   } catch (error) {
-//       res.status(500).send({ error: error.message });
-//   }
-// });
 
 app.use('/api', router);
 // Middleware
-//app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-//app.use('/map', mapRoutes);
 console.log('Routes initialized:');
 console.log('/api/geocode -> Geocoding Service');
 console.log('/api/findRoute -> Transit Route Finding Service');
 console.log('/user ->', userRoutes);
 
-//app.use('/api/transit', transitRoutes);
 
 
 
 app.use(express.static('public')); // 정적 파일 제공
-//app.use('/api/directions', require('./routes/direction')); // 대중교통 경로 API 라우트
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'odsay.html'));
 });
 
 console.log('Routes initialized:');
-//console.log('/map ->', mapRoutes);
 console.log('/user ->', userRoutes);
 
 
