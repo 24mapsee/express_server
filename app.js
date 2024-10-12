@@ -9,6 +9,7 @@ const router = express.Router();
 const userRoutes = require('./routes/userRoutes');
 const getCoordinates = require('./api/geocoding');
 const findTransitRoutes = require('./api/transitRoute');
+const searchAndFindRoute = require('./routes/routeFinder');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -56,7 +57,24 @@ app.get('/api/findRoute', async (req, res) => {
   }
 });
 
-
+app.get('/api/route', async (req, res) => {
+    const { startLocation, endLocation } = req.query;
+    if (!startLocation || !endLocation) {
+        return res.status(400).json({ error: 'Both startLocation and endLocation parameters are required.' });
+    }
+    try {
+        const route = await searchAndFindRoute(startLocation, endLocation);
+        if (route) {
+            res.status(200).json(route);
+        } else {
+            res.status(404).json({ error: 'No route found for the specified locations.' });
+        }
+    } catch (error) {
+        console.error('Route finder error:', error.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+  });
+  
 
 app.use('/api', router);
 // Middleware

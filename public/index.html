@@ -25,6 +25,13 @@
 <input type="text" id="endY" placeholder="Enter endY">
 <button onclick="findRoute()">Find Route</button>
 <p id="routeResult"></p>
+<h2>Search and Find Route Test</h2>
+<label for="startLocation">Start Location:</label>
+<input type="text" id="startLocation" placeholder="Enter start location">
+<label for="endLocation">End Location:</label>
+<input type="text" id="endLocation" placeholder="Enter end location">
+<button onclick="searchAndFindRoute()">Search and Find Route</button>
+<p id="searchRouteResult"></p>
 
 <script>
 function getCoordinates() {
@@ -46,6 +53,17 @@ function findRoute() {
     .then(response => response.json())
     .then(data => {
         document.getElementById('routeResult').textContent = JSON.stringify(data);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function searchAndFindRoute() {
+    const startLocation = document.getElementById('startLocation').value;
+    const endLocation = document.getElementById('endLocation').value;
+    fetch(`/api/route?startLocation=${encodeURIComponent(startLocation)}&endLocation=${encodeURIComponent(endLocation)}`)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('searchRouteResult').textContent = JSON.stringify(data);
     })
     .catch(error => console.error('Error:', error));
 }
