@@ -38,15 +38,15 @@ exports.getFeed = async (req, res) => {
   try {
     // Feed 테이블에서 모든 피드 항목 조회
     const [feedItems] = await db.execute(`
-            SELECT Feed.feed_id, Feed.title, Feed.description, Feed.image_url, Feed.created_at, 
-            users.user_id, users.email, 
+            SELECT Feeds.feed_id, Feeds.title, Feeds.description, Feeds.image_url, Feeds.created_at, 
+            Users.user_id, Users.email, 
             Saved_Place.name AS place_name, Saved_Place.latitude, Saved_Place.longitude, 
             Routes.route_name, Routes.route_description
-            FROM Feed
-            LEFT JOIN users ON Feed.user_id = users.user_id
-            LEFT JOIN Saved_Place ON Feed.place_id = Saved_Place.id
-            LEFT JOIN Routes ON Feed.route_id = Routes.route_id
-            ORDER BY Feed.created_at DESC
+            FROM Feeds
+            LEFT JOIN Users ON Feeds.user_id = Users.user_id
+            LEFT JOIN Saved_Place ON Feeds.place_id = Saved_Place.id
+            LEFT JOIN Routes ON Feeds.route_id = Routes.route_id
+            ORDER BY Feeds.created_at DESC
         `);
 
     res.status(200).json({
