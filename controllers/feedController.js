@@ -61,3 +61,25 @@ exports.getFeed = async (req, res) => {
     });
   }
 };
+
+// 모든 Feed 조회 테스트
+exports.getFeedTest = async (req, res) => {
+  try {
+    // Feed 테이블에서 모든 피드 항목 조회
+    const [feedItems] = await db.execute(`
+            SELECT *
+            FROM Feeds
+        `);
+
+    res.status(200).json({
+      message: "Feed retrieved successfully",
+      feedItems: feedItems,
+    });
+  } catch (error) {
+    console.error("Error retrieving feed:", error);
+    res.status(500).json({
+      message: "Error retrieving feed",
+      error: error.message,
+    });
+  }
+};
