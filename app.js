@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const mapRoutes = require('./routes/mapRoutes');
 const userRoutes = require('./routes/userRoutes');
+const feedRoutes = require("./routes/feedRoutes");
 
 const app = express();
 const port = process.env.PORT || 3000;

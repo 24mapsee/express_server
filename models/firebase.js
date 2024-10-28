@@ -6,5 +6,4 @@ admin.initializeApp({
   databaseURL: "https://mapsee-8a424.firebaseio.com"
 });
 
-
 module.exports = admin;

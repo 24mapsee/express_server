@@ -1,5 +1,5 @@
 // controllers/feedController.js
-const db = require('../models'); // Assuming you have a DB model setup
+const db = require('../models/db');
 
 // 피드에 장소 또는 경로 공유
 exports.shareToFeed = async (req, res) => {

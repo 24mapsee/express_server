@@ -35,7 +35,7 @@ exports.createRandomUser = async (req, res) => {
     }
 };
 
-// 회원가입 함수
+// 자체 회원가입 함수
 exports.register = async (req, res) => {
     /*
     const errors = validationResult(req);
@@ -68,6 +68,8 @@ exports.register = async (req, res) => {
         });
     }
 };
+
+
 
 exports.SavePlaceTest = async (req, res) => {
     /*
