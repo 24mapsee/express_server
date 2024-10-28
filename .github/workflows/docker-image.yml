@@ -1,0 +1,32 @@
+name: Auto NCP NCR Docker Build and Push
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Get short commit hash
+      id: vars
+      run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+
+    - name: Log in to NCP Container Registry
+      run: echo "${{ secrets.NCP_PASSWORD }}" | docker login mapsee.kr.ncr.ntruss.com -u "${{ secrets.NCP_USERNAME }}" --password-stdin
+
+    - name: Build Docker Image
+      run: docker build -f Dockerfile -t mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }} --platform linux/amd64 .
+
+    - name: Push Docker Image
+      run: docker push mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }}
+
+    - name: Tag image as latest and push
+      run: |
+        docker tag mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }} mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:latest
+        docker push mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:latest
