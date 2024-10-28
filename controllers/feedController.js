@@ -35,19 +35,39 @@ exports.shareToFeed = async (req, res) => {
 
 // 모든 피드 조회
 exports.getFeed = async (req, res) => {
+  const { user_id, followingOnly } = req.body; // 로그인한 사용자 ID와 팔로잉만 보기 옵션
+
   try {
-    // Feed 테이블에서 모든 피드 항목 조회
-    const [feedItems] = await db.execute(`
-            SELECT Feeds.feed_id, Feeds.title, Feeds.description, Feeds.image_url, Feeds.created_at, 
-            Users.user_id, Users.email, 
-            Saved_Place.name AS place_name, Saved_Place.latitude, Saved_Place.longitude, 
-            Routes.route_name, Routes.route_description
-            FROM Feeds
-            LEFT JOIN Users ON Feeds.user_id = Users.user_id
-            LEFT JOIN Saved_Place ON Feeds.place_id = Saved_Place.id
-            LEFT JOIN Routes ON Feeds.route_id = Routes.route_id
-            ORDER BY Feeds.created_at DESC
-        `);
+    let query = `
+      SELECT 
+        Feeds.feed_id, 
+        Feeds.title, 
+        Feeds.description, 
+        Feeds.image_url, 
+        Feeds.created_at, 
+        
+        Users.user_id, 
+        Users.profile_picture
+        
+      FROM Feeds
+      LEFT JOIN Users ON Feeds.user_id = Users.user_id
+    `;
+
+    const params = []; // 쿼리 파라미터 배열
+
+    // 팔로잉한 사용자만 보기 옵션이 있을 때만 Following 테이블을 JOIN
+    if (followingOnly) {
+      query += `
+        LEFT JOIN Following ON Feeds.user_id = Following.following_id
+        WHERE Following.follower_id = ?
+      `;
+      params.push(user_id); // 팔로잉한 사용자의 ID를 파라미터로 추가
+    }
+
+    query += `ORDER BY Feeds.created_at DESC`;
+
+    // 쿼리 실행
+    const [feedItems] = await db.execute(query, params);
 
     res.status(200).json({
       message: "Feed retrieved successfully",
