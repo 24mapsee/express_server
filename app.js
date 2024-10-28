@@ -15,6 +15,7 @@ app.use(express.json());
 // Routes
 app.use('/map', mapRoutes);
 app.use('/user', userRoutes);
+app.use('/feed', feedRoutes);
 
 app.listen(port, () => {
   console.log(`Mapsee server running on port ${port}`);
