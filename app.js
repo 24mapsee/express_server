@@ -4,7 +4,8 @@ const cors = require("cors");
 
 const mapRoutes = require("./routes/mapRoutes");
 const userRoutes = require("./routes/userRoutes");
-const feedRoutes = require("./routes/feedRoutes");
+const feedRoutes = require("./routes/userRoutes");
+const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,6 +18,8 @@ app.use(express.json());
 app.use("/map", mapRoutes);
 app.use("/user", userRoutes);
 app.use("/feed", feedRoutes);
+
+app.use('/profile', profileRoutes);
 
 app.listen(port, () => {
   console.log(`Mapsee server running on port ${port}`);
