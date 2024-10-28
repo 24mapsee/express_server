@@ -2,8 +2,11 @@ name: Auto NCP NCR Docker Build and Push
 
 on:
   push:
-    branches:
-      - develop
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+    types: [ closed ]
+
 
 jobs:
   build:
@@ -16,7 +19,11 @@ jobs:
     - name: Get short commit hash
       id: vars
       run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-
+      
+    - name: Check if merged
+      if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == false }}
+      run: exit 0
+      
     - name: Log in to NCP Container Registry
       run: echo "${{ secrets.NCP_PASSWORD }}" | docker login mapsee.kr.ncr.ntruss.com -u "${{ secrets.NCP_USERNAME }}" --password-stdin
 
