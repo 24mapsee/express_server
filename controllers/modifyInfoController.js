@@ -4,8 +4,6 @@ const db = require('../models/db');  // 데이터베이스 연결 파일
 exports.modifyUserInfo = async (req, res) => {
     const { userId } = req.params; // URL 파라미터에서 userId 가져오기
     const { name, phone_number, birth_date, gender } = req.body; // 수정할 필드들 가져오기
-
-    console.log("modifyUserInfo 함수에 진입했습니다");
     try {
         // 사용자 정보 업데이트
         const [result] = await db.query(`
