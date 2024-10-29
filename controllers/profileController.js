@@ -35,8 +35,8 @@ exports.getUserProfile = async (req, res) => {
 
         // 유저의 저장된 경로 목록 조회
         const [routes] = await db.query(`
-            SELECT route_name
-            FROM Routes
+            SELECT title
+            FROM Custom_Routes
             WHERE user_id = ?
         `, [userId]);
 

@@ -4,7 +4,7 @@ const cors = require("cors");
 
 const mapRoutes = require("./routes/mapRoutes");
 const userRoutes = require("./routes/userRoutes");
-const feedRoutes = require("./routes/userRoutes");
+const feedRoutes = require("./routes/feedRoutes");
 const profileRoutes = require('./routes/profileRoutes');
 const routeRoutes = require("./routes/routeRoutes");
 
