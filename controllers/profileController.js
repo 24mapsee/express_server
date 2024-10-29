@@ -35,24 +35,43 @@ exports.getUserProfile = async (req, res) => {
 
         // 유저의 저장된 경로 목록 조회
         const [routes] = await db.query(`
-            SELECT title
+            SELECT title, description
             FROM Custom_Routes
             WHERE user_id = ?
         `, [userId]);
 
-        // 유저가 저장한 피드 목록 조회 (Saved_Feeds와 Feeds 테이블 조인)
-        const [savedFeeds] = await db.query(`
-            SELECT f.title 
-            FROM Feeds f
-            JOIN Saved_Feeds sf ON f.feed_id = sf.feed_id
-            WHERE sf.user_id = ?
+        //유저의 피드 목록 조회
+        const [feeds] = await db.query(`
+            SELECT *
+            FROM Feeds
+            WHERE user_id = ?
         `, [userId]);
+        
+
+     // 유저가 저장한 피드 목록 조회 (Saved_Feeds, Feeds, Users 테이블 조인)
+     const [savedFeeds] = await db.query(`
+        SELECT 
+            f.*,                             -- Feeds 테이블의 모든 칼럼을 가져옵니다
+            u.user_id AS author_user_id,     -- 작성자의 user_id
+            u.profile_picture AS author_profile_picture  -- 작성자의 프로필 사진
+        FROM 
+            Saved_Feeds sf
+        LEFT JOIN 
+            Feeds f ON sf.feed_id = f.feed_id  -- Saved_Feeds와 Feeds를 feed_id 기준으로 조인
+        LEFT JOIN 
+            Users u ON f.user_id = u.user_id   -- Feeds와 Users를 작성자 user_id 기준으로 조인
+        WHERE 
+            sf.user_id = ?;  -- 현재 조회 중인 사용자 user_id
+    `, [userId]);
+    
+
 
         // 최종 JSON 응답
         res.status(200).json({
             userInfo: userInfo[0],
             places,
             routes,
+            feeds,
             savedFeeds
         });
     } catch (error) {
