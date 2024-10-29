@@ -54,4 +54,4 @@ jobs:
           git config --global user.name "admin"
           git add docker-hash.txt
           git commit -m "Update Docker hash"
-          git push https://{{ secrets.NSC_USERNAME }}:${{ secrets.NSC_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git master
+          git push https://${{ secrets.NSC_USERNAME }}:${{ secrets.NSC_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git master
