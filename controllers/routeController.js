@@ -74,3 +74,59 @@ exports.getRoutes = async (req, res) => {
     });
   }
 };
+
+exports.getCustomRoutesByUserID = async (req, res) => {
+  const { user_id } = req.query;
+
+  try {
+    const [routes] = await db.execute(
+      `
+      SELECT cr.custom_route_id, cr.title, cr.description, cr.created_at
+      FROM Custom_Routes cr
+      WHERE cr.user_id = ?
+      ORDER BY cr.created_at DESC
+    `,
+      [user_id]
+    );
+
+    res.status(200).json({
+      message: "Routes retrieved successfully",
+      routes: routes,
+    });
+  } catch (error) {
+    console.error("Error retrieving routes:", error);
+    res.status(500).json({
+      message: "Error retrieving routes",
+      error: error.message,
+    });
+  }
+};
+
+exports.getRoutesByCustomRouteID = async (req, res) => {
+  const { custom_route_id } = req.query;
+
+  try {
+    const [routes] = await db.execute(
+      `
+      SELECT cr.custom_route_id, cr.title, cr.description, cr.created_at,
+             r.route_id, r.startY, r.startX, r.endY, r.endX, r.startName, r.endName, r.data
+      FROM Custom_Routes cr
+      LEFT JOIN Routes r ON cr.custom_route_id = r.custom_route_id
+      WHERE cr.custom_route_id = ?
+      ORDER BY r.route_id
+    `,
+      [custom_route_id]
+    );
+
+    res.status(200).json({
+      message: "Routes retrieved successfully",
+      routes: routes,
+    });
+  } catch (error) {
+    console.error("Error retrieving routes:", error);
+    res.status(500).json({
+      message: "Error retrieving routes",
+      error: error.message,
+    });
+  }
+};
