@@ -4,45 +4,40 @@ const userController = require("../controllers/userController");
 
 const router = express.Router();
 
-router.get("", (req, res) => {
-  res.send("hi");
-});
-
-//local~~/user/create-user 로 테스트해보기
-router.get("/create-user", userController.createRandomUser);
-
-router.get("/save-place", userController.SavePlaceTest);
-
-router.get("/get-place", userController.GetPlaceTest);
-
-// 회원가입 라우트
+// 자체 회원가입 라우트
 router.post(
-  "/register",
+  "/register/native",
   [
-    body("username").notEmpty().withMessage("Username is required"),
-    body("email").isEmail().withMessage("Valid email is required"),
-    body("password")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters long"),
+      body("userId").notEmpty().withMessage("아이디를 입력해주세요."),
+      body("password").isLength({ min: 6 }).withMessage("비밀번호는 최소 6자리 이상이어야 합니다.")
   ],
-  userController.register
+  userController.registerNative
 );
 
+// 소셜 회원가입 라우트
 router.post(
-  "/save-place",
+  "/register/social",
   [
-    body("uid").notEmpty().withMessage("Username is required"),
-    body("name").notEmpty().withMessage("Valid email is required"),
-    body("latitude").notEmpty().withMessage("Valid email is required"),
-    body("longitude").notEmpty().withMessage("Valid email is required"),
+      body("idToken").notEmpty().withMessage("소셜 토큰을 입력해주세요."),
+      body("provider").isIn(['google', 'kakao', 'naver']).withMessage("유효하지 않은 소셜 제공자입니다.")
   ],
-  userController.SavePlace
+  userController.registerWithSocial
 );
 
-router.post(
-  "/get-place",
-  [body("uid").notEmpty().withMessage("Username is required")],
-  userController.SavePlace
-);
+// 소셜 로그인 엔드포인트
+router.post("/auth/google", (req, res, next) => {
+  req.body.provider = 'google';
+  next();
+}, userController.registerWithSocial);
+
+router.post("/auth/kakao", (req, res, next) => {
+  req.body.provider = 'kakao';
+  next();
+}, userController.registerWithSocial);
+
+router.post("/auth/naver", (req, res, next) => {
+  req.body.provider = 'naver';
+  next();
+}, userController.registerWithSocial);
 
 module.exports = router;
