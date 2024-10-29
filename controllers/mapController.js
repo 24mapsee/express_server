@@ -3,7 +3,7 @@ exports.getMapData = (req, res) => {
   res.send("Map data");
 };
 
-exports.getPublicTransportRouteData = async (req, res) => {
+exports.postPublicTransportRouteData = async (req, res) => {
   const axios = require("axios");
   const { startY, startX, endY, endX } = req.body;
 
