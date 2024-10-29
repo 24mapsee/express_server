@@ -5,35 +5,53 @@ on:
     branches: [develop]
   pull_request:
     branches: [develop]
-    types: [ closed ]
-
+    types: [closed]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Get short commit hash
-      id: vars
-      run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-      
-    - name: Check if merged
-      if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == false }}
-      run: exit 0
-      
-    - name: Log in to NCP Container Registry
-      run: echo "${{ secrets.NCP_PASSWORD }}" | docker login mapsee.kr.ncr.ntruss.com -u "${{ secrets.NCP_USERNAME }}" --password-stdin
+      - name: Get short commit hash
+        id: vars
+        run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
 
-    - name: Build Docker Image
-      run: docker build -f DockerFile -t mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }} --platform linux/amd64 .
+      - name: Check if merged
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == false }}
+        run: exit 0
 
-    - name: Push Docker Image
-      run: docker push mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }}
+      - name: Log in to NCP Container Registry
+        run: echo "${{ secrets.NCP_PASSWORD }}" | docker login mapsee.kr.ncr.ntruss.com -u "${{ secrets.NCP_USERNAME }}" --password-stdin
 
-    - name: Tag image as latest and push
-      run: |
-        docker tag mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }} mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:latest
-        docker push mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:latest
+      - name: Build Docker Image
+        run: docker build -f DockerFile -t mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }} --platform linux/amd64 .
+
+      - name: Push Docker Image
+        run: docker push mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }}
+
+      - name: Tag image as latest and push
+        run: |
+          docker tag mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }} mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:latest
+          docker push mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:latest
+
+      - name: Save Docker hash to file
+        run: echo "mapsee.kr.ncr.ntruss.com/mapsee/24mapsee-backend:${{ steps.vars.outputs.sha }}" > docker-hash.txt
+
+      - name: Checkout contest85 repo
+        run: |
+          git clone https://devtools.ncloud.com/3067145/contest85-repo.git
+          cd contest85-repo
+          git checkout master
+          cp ../docker-hash.txt .
+
+      - name: Commit and push Docker hash to master
+        run: |
+          cd contest85-repo
+          git config --global user.email "test@kookmin.ac.kr"
+          git config --global user.name "admin"
+          git add docker-hash.txt
+          git commit -m "Update Docker hash"
+          git push https://{{ secrets.NCP_USERNAME }}:${{ secrets.NCP_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git master
