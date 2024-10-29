@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const feedRoutes = require("./routes/feedRoutes");
 const profileRoutes = require('./routes/profileRoutes');
 const routeRoutes = require("./routes/routeRoutes");
+const modifyRoutes = require("./routes/modifyRoutes");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,8 +21,8 @@ app.use("/map", mapRoutes);
 app.use("/user", userRoutes);
 app.use("/feed", feedRoutes);
 app.use("/route", routeRoutes);
-
 app.use('/profile', profileRoutes);
+app.use('/users', modifyRoutes);
 
 app.listen(port, () => {
   console.log(`Mapsee server running on port ${port}`);
