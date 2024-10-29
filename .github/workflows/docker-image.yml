@@ -42,7 +42,7 @@ jobs:
 
       - name: Checkout contest85 repo
         run: |
-          git clone https://devtools.ncloud.com/3067145/contest85-repo.git
+          git clone https://${{ secrets.NCP_USERNAME }}:${{ secrets.NCP_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git
           cd contest85-repo
           git checkout master
           cp ../docker-hash.txt .
