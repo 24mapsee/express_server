@@ -25,4 +25,14 @@ router.post(
   routeController.saveRoute
 );
 
+router.get(
+  "/get/routesByCustomRouteID",
+  routeController.getRoutesByCustomRouteID
+);
+
+router.get(
+  "/get/customRoutesByUserID",
+  routeController.getCustomRoutesByUserID
+);
+
 module.exports = router;
