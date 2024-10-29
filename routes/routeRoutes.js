@@ -10,7 +10,7 @@ router.post(
   [
     body("title").notEmpty().withMessage("Title is required"),
     body("description").notEmpty().withMessage("Description is required"),
-    body("user_id").isInt().withMessage("Valid user_id is required"),
+    body("user_id").notEmpty().withMessage("user_id is required"),
     body("routes")
       .isArray({ min: 1 })
       .withMessage("At least one route is required"),
