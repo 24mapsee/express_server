@@ -32,7 +32,7 @@ exports.getPublicTransportRouteData = async (req, res) => {
 
     res.status(200).json(response.data);
   } catch (error) {
-    console.error("Error fetching transit route:", error.message);
+    console.error("Response error data:", error.response);
     res.status(500).json({ error: "Failed to fetch transit route data" });
   }
 };
