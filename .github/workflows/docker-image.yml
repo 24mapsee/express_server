@@ -42,7 +42,7 @@ jobs:
 
       - name: Checkout contest85 repo
         run: |
-          git clone https://${{ secrets.NCP_USERNAME }}:${{ secrets.NCP_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git
+          git clone https://${{ secrets.NSC_USERNAME }}:${{ secrets.NSC_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git
           cd contest85-repo
           git checkout master
           cp ../docker-hash.txt .
@@ -54,4 +54,4 @@ jobs:
           git config --global user.name "admin"
           git add docker-hash.txt
           git commit -m "Update Docker hash"
-          git push https://{{ secrets.NCP_USERNAME }}:${{ secrets.NCP_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git master
+          git push https://{{ secrets.NSC_USERNAME }}:${{ secrets.NSC_PASSWORD }}@devtools.ncloud.com/3067145/contest85-repo.git master
