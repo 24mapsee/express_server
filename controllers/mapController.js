@@ -3,6 +3,40 @@ exports.getMapData = (req, res) => {
   res.send("Map data");
 };
 
+exports.getPublicTransportRouteData = async (req, res) => {
+  const axios = require("axios");
+  const { startY, startX, endY, endX } = req.body;
+
+  const requestData = {
+    startX: startX,
+    startY: startY,
+    endX: endX,
+    endY: endY,
+    count: 10,
+    lang: 0,
+    format: "json",
+  };
+
+  try {
+    // SK 오픈 API에 요청 보내기
+    const response = await axios.post(
+      "https://apis.openapi.sk.com/transit/routes",
+      requestData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          appKey: process.env.SK_API_KEY,
+        },
+      }
+    );
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error fetching transit route:", error.message);
+    res.status(500).json({ error: "Failed to fetch transit route data" });
+  }
+};
+
 exports.getTestRouteData = (req, res) => {
   res.json({
     metaData: {
