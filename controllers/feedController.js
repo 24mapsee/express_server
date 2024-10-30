@@ -9,7 +9,7 @@ exports.shareToFeed = async (req, res) => {
   try {
     // 피드에 장소 또는 경로 저장
     const result = await db.execute(
-      "INSERT INTO Feed (user_id, place_id, route_id, title, description, image_url) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Feeds (user_id, place_id, route_id, title, description, image_url) VALUES (?, ?, ?, ?, ?, ?)",
       [
         user_id,
         place_id || null,
@@ -103,12 +103,14 @@ exports.getFeedTest = async (req, res) => {
     });
   }
   // feed 상세 정보 확인 ex) localhost:3000/feed/get-feed-detail?feed_id=2
-};exports.getFeedDetail = async (req, res) => {
-  const { feed_id } = req.query;  // Query parameter로 feed_id 가져오기
+};
+exports.getFeedDetail = async (req, res) => {
+  const { feed_id } = req.query; // Query parameter로 feed_id 가져오기
 
   try {
     // feed_id에 해당하는 피드 정보, 작성자 정보 및 경로 정보를 함께 가져오는 쿼리
-    const [feedDetails] = await db.query(`
+    const [feedDetails] = await db.query(
+      `
       SELECT 
         f.*,                             -- Feeds 테이블의 모든 칼럼을 가져옵니다
         u.user_id AS author_user_id,     -- 작성자의 user_id
@@ -123,7 +125,9 @@ exports.getFeedTest = async (req, res) => {
         Routes r ON f.route_id = r.route_id  -- Feeds와 Routes를 route_id 기준으로 조인
       WHERE 
         f.feed_id = ?                      -- 특정 feed_id에 해당하는 피드 조회
-    `, [feed_id]);
+    `,
+      [feed_id]
+    );
 
     // 피드를 찾지 못한 경우
     if (feedDetails.length === 0) {
