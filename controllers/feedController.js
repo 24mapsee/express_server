@@ -1,22 +1,31 @@
 // controllers/feedController.js
 const db = require("../models/db");
+const { uploadImageToS3 } = require("./imageController"); // 이미지 업로드 함수 불러오기
+const multer = require("multer");
+
+const upload = multer();
 
 // 피드에 장소 또는 경로 공유
 exports.shareToFeed = async (req, res) => {
-  const { user_id, place_id, route_id, title, description, image_url } =
-    req.body;
+  const { user_id, place_id, route_id, title, description } = req.body;
+  let imageUrl = req.body.image_url;
 
   try {
-    // 피드에 장소 또는 경로 저장
+    // 이미지 파일이 있으면 업로드 수행
+    if (req.file) {
+      imageUrl = await uploadImageToS3(req.file); // 클라우드에 이미지 업로드 후 URL 반환
+    }
+
+    // DB에 피드 저장
     const result = await db.execute(
-      "INSERT INTO Feeds (user_id, place_id, route_id, title, description, image_url) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Feed (user_id, place_id, route_id, title, description, image_url) VALUES (?, ?, ?, ?, ?, ?)",
       [
         user_id,
         place_id || null,
         route_id || null,
         title,
         description,
-        image_url,
+        imageUrl,
       ]
     );
 
@@ -32,6 +41,9 @@ exports.shareToFeed = async (req, res) => {
     });
   }
 };
+
+// 이미지 업로드 미들웨어
+exports.uploadFeedImage = upload.single("image");
 
 // 모든 피드 조회
 exports.getFeed = async (req, res) => {
