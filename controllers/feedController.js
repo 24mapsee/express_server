@@ -102,4 +102,40 @@ exports.getFeedTest = async (req, res) => {
       error: error.message,
     });
   }
+  // feed 상세 정보 확인 ex) localhost:3000/feed/get-feed-detail?feed_id=2
+};exports.getFeedDetail = async (req, res) => {
+  const { feed_id } = req.query;  // Query parameter로 feed_id 가져오기
+
+  try {
+    // feed_id에 해당하는 피드 정보, 작성자 정보 및 경로 정보를 함께 가져오는 쿼리
+    const [feedDetails] = await db.query(`
+      SELECT 
+        f.*,                             -- Feeds 테이블의 모든 칼럼을 가져옵니다
+        u.user_id AS author_user_id,     -- 작성자의 user_id
+        u.profile_picture AS author_profile_picture,  -- 작성자의 프로필 사진
+        u.name AS author_username,   -- 작성자의 사용자 이름
+        r.*                              -- Routes 테이블의 모든 칼럼을 가져옵니다
+      FROM 
+        Feeds f
+      LEFT JOIN 
+        Users u ON f.user_id = u.user_id   -- Feeds와 Users를 작성자 user_id 기준으로 조인
+      LEFT JOIN 
+        Routes r ON f.route_id = r.route_id  -- Feeds와 Routes를 route_id 기준으로 조인
+      WHERE 
+        f.feed_id = ?                      -- 특정 feed_id에 해당하는 피드 조회
+    `, [feed_id]);
+
+    // 피드를 찾지 못한 경우
+    if (feedDetails.length === 0) {
+      return res.status(404).json({ message: "Feed not found" });
+    }
+
+    res.status(200).json({
+      message: "Feed details retrieved successfully",
+      feedDetails: feedDetails[0],
+    });
+  } catch (error) {
+    console.error("Error fetching feed details:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };

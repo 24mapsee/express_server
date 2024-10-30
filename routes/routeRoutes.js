@@ -5,12 +5,13 @@ const routeController = require("../controllers/routeController");
 const router = express.Router();
 
 router.get("/get", routeController.getRoutes);
+
 router.post(
   "/create",
   [
     body("title").notEmpty().withMessage("Title is required"),
     body("description").notEmpty().withMessage("Description is required"),
-    body("user_id").isInt().withMessage("Valid user_id is required"),
+    body("user_id").notEmpty().withMessage("user_id is required"),
     body("routes")
       .isArray({ min: 1 })
       .withMessage("At least one route is required"),
@@ -22,6 +23,16 @@ router.post(
     body("routes.*.endName").notEmpty().withMessage("End name is required"),
   ],
   routeController.saveRoute
+);
+
+router.get(
+  "/get/routesByCustomRouteID",
+  routeController.getRoutesByCustomRouteID
+);
+
+router.get(
+  "/get/customRoutesByUserID",
+  routeController.getCustomRoutesByUserID
 );
 
 module.exports = router;

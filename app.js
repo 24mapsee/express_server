@@ -9,6 +9,10 @@ const feedRoutes = require("./routes/feedRoutes");
 const routeRoutes = require("./routes/routeRoutes");
 const profileRoutes = require('./routes/profileRoutes');
 const folderRoutes = require('./routes/folderRoutes');
+const modifyRoutes = require("./routes/modifyRoutes");
+const followRoutes = require("./routes/followRoutes"); 
+
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -21,9 +25,10 @@ app.use("/feed", feedRoutes);
 app.use("/route", routeRoutes);
 app.use('/profile', profileRoutes);
 app.use("/folder", folderRoutes);
+app.use('/modify', modifyRoutes);
+app.use("/follow", followRoutes); 
 
-// 서버 시작
-const port = process.env.PORT || 3000;
+
 app.listen(port, () => {
   console.log(`Mapsee server running on port ${port}`);
 });

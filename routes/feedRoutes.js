@@ -27,7 +27,7 @@ router.post(
 
 // 모든 피드 조회
 router.get("/get-feed", feedController.getFeed);
-
+router.get("/get-feed-detail", feedController.getFeedDetail);
 router.get("/get-feed-test", feedController.getFeedTest);
 
 module.exports = router;

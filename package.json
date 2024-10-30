@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon app.js",
+    "prod": "NODE_ENV=production node app.js ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,9 +21,11 @@
     "firebase": "^10.14.0",
     "firebase-admin": "^12.6.0",
     "mysql2": "^3.11.3",
+    "nodemon": "^3.1.7",
     "redis": "^4.7.0"
   },
   "devDependencies": {
+    "jsdoc": "^4.0.4",
     "nodemon": "^3.1.7"
   }
 }
