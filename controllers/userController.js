@@ -1,179 +1,110 @@
+const db = require('../models/db'); // MySQL 데이터베이스
 const admin = require('../models/firebase'); // Firebase Admin SDK
-const { v4: uuidv4 } = require('uuid'); // UUID 생성 패키지
-const { saveUserToDatabase, savePlaceDatabase, getPlaceDatabase } = require('./dbController'); // dbcontroller에서 함수 가져오기
+const bcrypt = require('bcrypt');
+const axios = require("axios");
 
-
-// 랜덤 사용자 생성 함수 테스트용임
-exports.createRandomUser = async (req, res) => {
-    const randomUsername = `user_${uuidv4()}`;
-    const randomEmail = `${uuidv4()}@example.com`;
-    const randomPassword = 'password123';
-
+// 디폴트 폴더 생성 함수
+const createDefaultFolder = async (userId, connection) => {
     try {
-        // Firebase Admin SDK로 사용자 생성
-        const userRecord = await admin.auth().createUser({
-            email: randomEmail,
-            password: randomPassword,
-            displayName: randomUsername
-        });
-
-        // Firebase UID와 함께 MySQL에 사용자 저장
-        await saveUserToDatabase(userRecord.uid, randomUsername, randomEmail);
-
-        res.status(201).json({
-            message: 'Random user created and saved to database',
-            uid: userRecord.uid,
-            username: randomUsername,
-            email: randomEmail
-        });
+        await connection.execute(
+            "INSERT INTO Place_Folders (user_id, folder_name, created_at) VALUES (?, ?, CURRENT_TIMESTAMP)",
+            [userId, '내 저장소']
+        );
     } catch (error) {
-        console.error('Error creating random user:', error);
-        res.status(400).json({
-            message: 'Error creating random user',
-            error: error.message
-        });
+        throw new Error('Error creating default folder: ' + error.message);
     }
 };
 
-// 자체 회원가입 함수
-exports.register = async (req, res) => {
-    /*
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    */
-    const { email, password, birthdate, gender, tel } = req.body;
+// 1. 자체 회원가입 (아이디/비밀번호)
+exports.registerNative = async (req, res) => {
+    const { userId, password } = req.body; // 클라이언트에서 제공한 사용자 ID와 비밀번호
+    const connection = await db.getConnection();
 
     try {
-        // Firebase Admin SDK로 사용자 생성
+         // 기존 userId 중복 확인
+         const [existingUser] = await connection.execute(
+            "SELECT * FROM Users WHERE local_id = ?",
+            [userId]
+        );
+
+        if (existingUser.length > 0) {
+            // 중복된 아이디 에러 처리
+            return res.status(409).json({ message: "중복된 아이디입니다" });
+        }
+        // 비밀번호 암호화
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Firebase에 사용자 생성
         const userRecord = await admin.auth().createUser({
-            email: email,
-            password: password,
-            displayName: email
+            password: password // Firebase에서 고유 UID를 생성하기 위한 비밀번호
         });
 
-        // Firebase UID를 MySQL에 저장
-        await saveUserToDatabase(userRecord.uid, userRecord.email, password);
+        // MySQL Users 테이블에 유저 정보 저장
+        await connection.execute(
+            "INSERT INTO Users (user_id, local_id, password, name, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
+            [userRecord.uid, userId, hashedPassword, userId]
+        );
+
+        // 기본 폴더 생성
+        await createDefaultFolder(userRecord.uid, connection);
 
         res.status(200).json({
-            message: 'User created and saved to database',
+            message: 'User registered successfully',
             uid: userRecord.uid
         });
     } catch (error) {
-        console.error('Error creating user:', error);
-        res.status(400).json({
-            message: 'Error creating user',
-            error: error.message
-        });
+        console.error('Error registering user:', error);
+        res.status(500).json({ message: 'Error registering user', error: error.message });
+    } finally {
+        connection.release();
     }
 };
 
-
-
-exports.SavePlaceTest = async (req, res) => {
-    /*
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    */
-    const uid = 3;
-    const place_id = 1;
-    const latitude = 6;
-    const longitude = 112.31;
-    //const { uid, name, latitude, longitude } = req.body;
+// 2. 소셜 회원가입
+exports.registerWithSocial = async (req, res) => {
+    const { idToken, accessToken, provider } = req.body;
+    let uid, email;
+    const connection = await db.getConnection();
 
     try {
-        await savePlaceDatabase(uid, place_id, latitude, longitude);
+        if (provider === 'google') {
+            // Google 인증 처리
+            const decodedToken = await admin.auth().verifyIdToken(idToken);
+            uid = decodedToken.uid;
+            email = decodedToken.email;
+        } else if (provider === 'kakao') {
+            // Kakao 인증 처리
+            const kakaoUserInfo = await axios.get("https://kapi.kakao.com/v2/user/me", {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            uid = `kakao_${kakaoUserInfo.data.id}`;
+            email = kakaoUserInfo.data.kakao_account.email;
+        } else if (provider === 'naver') {
+            // Naver 인증 처리
+            const naverUserInfo = await axios.get("https://openapi.naver.com/v1/nid/me", {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            uid = `naver_${naverUserInfo.data.response.id}`;
+            email = naverUserInfo.data.response.email;
+        }
 
-        res.status(200).json({
-            message: 'Place saved to database',
-            uid: uid,
-            place_id: place_id,
-            latitude:latitude,
-            longitude: longitude
-        });
+        // Firebase Custom Token 생성
+        const customToken = await admin.auth().createCustomToken(uid);
+
+        // 데이터베이스에 사용자 정보 저장
+        await connection.execute(
+            "INSERT INTO Users (user_id, email, provider, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE email = VALUES(email), provider = VALUES(provider)",
+            [uid, email, provider]
+        );
+
+        // 기본 폴더 생성
+        await createDefaultFolder(uid, connection);
+
+        res.status(200).json({ message: `${provider} user authenticated`, customToken });
     } catch (error) {
-        console.error('Error Place saved to database:', error);
-        res.status(400).json({
-            message: 'Error Place saved to database',
-            error: error.message
-        });
-    }
-};
-
-
-
-exports.SavePlace = async (req, res) => {
-    /*
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    */
-    const { uid, place_id, latitude, longitude } = req.body;
-
-    try {
-        await savePlaceDatabase(uid, place_id, latitude, longitude);
-
-        res.status(200).json({
-            message: 'Place saved to database',
-            uid: uid,
-            place_id: place_id,
-            latitude:latitude,
-            longitude: longitude
-        
-        });
-    } catch (error) {
-        console.error('Error Place saved to database:', error);
-        res.status(400).json({
-            message: 'Error Place saved to database',
-            error: error.message
-        });
-    }
-};
-
-
-exports.GetPlaceTest = async (req, res) => {
-
-    const uid = 3;
-    try {
-        // 데이터베이스에서 장소 정보를 가져옴
-        const placeInfo = await getPlaceDatabase(uid);
-
-        // 조회한 데이터를 클라이언트에 응답
-        res.status(200).json({
-            message: 'Place retrieved from database',
-            uid: uid,
-            placeInfo: placeInfo  // 가져온 데이터 추가
-        });
-    } catch (error) {
-        console.error('Error retrieving place info:', error);
-        res.status(400).json({
-            message: 'Error retrieving place info',
-            error: error.message
-        });
-    }
-};
-exports.GetPlace = async (req, res) => {
-    const { uid } = req.body;
-
-    try {
-        // 데이터베이스에서 장소 정보를 가져옴
-        const placeInfo = await getPlaceDatabase(uid);
-
-        // 조회한 데이터를 클라이언트에 응답
-        res.status(200).json({
-            message: 'Place retrieved from database',
-            uid: uid,
-            placeInfo: placeInfo  // 가져온 데이터 추가
-        });
-    } catch (error) {
-        console.error('Error retrieving place info:', error);
-        res.status(400).json({
-            message: 'Error retrieving place info',
-            error: error.message
-        });
+        console.error(`Error authenticating ${provider} user:`, error);
+        res.status(500).json({ message: `Error authenticating ${provider} user`, error: error.message });
+    } finally {
+        connection.release(); // 연결 해제
     }
 };
