@@ -11,8 +11,9 @@ exports.getUserProfile = async (req, res) => {
             SELECT 
                 u.user_id, 
                 u.profile_picture,
+                u.name,
                 (SELECT COUNT(*) FROM Feeds WHERE user_id = ?) AS repository,
-                (SELECT COUNT(*) FROM Following WHERE user_id = ?) AS following,
+                (SELECT COUNT(*) FROM Following WHERE follower_id = ?) AS following,
                 (SELECT COUNT(*) FROM Following WHERE following_id = ?) AS follower,
                 (SELECT COUNT(*) FROM Saved_Feeds WHERE user_id = ?) AS saved_feeds
             FROM 
@@ -20,6 +21,7 @@ exports.getUserProfile = async (req, res) => {
             WHERE 
                 u.user_id = ?
         `, [userId, userId, userId, userId, userId]);
+        console.log("userInfo:", userInfo);
 
         // 사용자 정보를 찾지 못한 경우
         if (userInfo.length === 0) {
