@@ -8,6 +8,7 @@ const feedRoutes = require("./routes/feedRoutes");
 const profileRoutes = require('./routes/profileRoutes');
 const routeRoutes = require("./routes/routeRoutes");
 const modifyRoutes = require("./routes/modifyRoutes");
+const followRoutes = require("./routes/followRoutes"); 
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,7 +23,8 @@ app.use("/user", userRoutes);
 app.use("/feed", feedRoutes);
 app.use("/route", routeRoutes);
 app.use('/profile', profileRoutes);
-app.use('/users', modifyRoutes);
+app.use('/modify', modifyRoutes);
+app.use("/follow", followRoutes); 
 
 app.listen(port, () => {
   console.log(`Mapsee server running on port ${port}`);

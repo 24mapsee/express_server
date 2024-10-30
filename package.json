@@ -21,10 +21,11 @@
     "firebase": "^10.14.0",
     "firebase-admin": "^12.6.0",
     "mysql2": "^3.11.3",
-    "redis": "^4.7.0",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "redis": "^4.7.0"
   },
   "devDependencies": {
+    "jsdoc": "^4.0.4",
     "nodemon": "^3.1.7"
   }
 }
