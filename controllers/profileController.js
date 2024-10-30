@@ -67,8 +67,7 @@ exports.getUserProfile = async (req, res) => {
     `, [userId]);
     
 
-
-        // 최종 JSON 응답
+        
         res.status(200).json({
             userInfo: userInfo[0],
             places,
