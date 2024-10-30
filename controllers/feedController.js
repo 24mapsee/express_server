@@ -8,7 +8,7 @@ const upload = multer();
 // 피드에 장소 또는 경로 공유
 exports.shareToFeed = async (req, res) => {
   const { user_id, place_id, route_id, title, description } = req.body;
-  let imageUrl = req.body.image_url;
+  let imageUrl = req.body.image_url || null;
 
   try {
     // 이미지 파일이 있으면 업로드 수행
@@ -18,7 +18,7 @@ exports.shareToFeed = async (req, res) => {
 
     // DB에 피드 저장
     const result = await db.execute(
-      "INSERT INTO Feed (user_id, place_id, route_id, title, description, image_url) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Feeds (user_id, place_id, route_id, title, description, image_url) VALUES (?, ?, ?, ?, ?, ?)",
       [
         user_id,
         place_id || null,
