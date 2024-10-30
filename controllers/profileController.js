@@ -11,6 +11,7 @@ exports.getUserProfile = async (req, res) => {
             SELECT 
                 u.user_id, 
                 u.profile_picture,
+                u.name,
                 (SELECT COUNT(*) FROM Feeds WHERE user_id = ?) AS repository,
                 (SELECT COUNT(*) FROM Following WHERE user_id = ?) AS following,
                 (SELECT COUNT(*) FROM Following WHERE following_id = ?) AS follower,
