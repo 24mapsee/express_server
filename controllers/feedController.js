@@ -60,7 +60,8 @@ exports.getFeed = async (req, res) => {
         Feeds.place_id, 
         Feeds.route_id,
 
-        Users.user_id, 
+        Users.user_id,
+        Users.user_name,  
         Users.profile_picture
         
       FROM Feeds
