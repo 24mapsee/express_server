@@ -57,7 +57,9 @@ exports.getFeed = async (req, res) => {
         Feeds.description, 
         Feeds.image_url, 
         Feeds.created_at, 
-        
+        Feeds.place_id, 
+        Feeds.route_id,
+
         Users.user_id, 
         Users.profile_picture
         
