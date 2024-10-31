@@ -8,5 +8,5 @@ router.get("/following/:userId", followController.getFollowers);
 
 router.post("/add-follow", followController.addFollow);
 router.delete("/delete-follow", followController.deleteFollow); 
-
+router.post('/check-follow', followController.checkFollowStatus);
 module.exports = router;

@@ -105,3 +105,24 @@ exports.deleteFollow = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+// 팔로우 상태 확인 함수
+exports.checkFollowStatus = async (req, res) => {
+    const { followerId, followingId } = req.body;
+
+    if (!followerId || !followingId) {
+        return res.status(400).json({ message: 'followerId와 followingId가 필요합니다.' });
+    }
+
+    try {
+        const [rows] = await db.query(
+            'SELECT * FROM Following WHERE follower_id = ? AND following_id = ?',
+            [followerId, followingId]
+        );
+        const isFollowing = rows.length > 0;
+        res.status(200).json({ isFollowing });
+    } catch (error) {
+        console.error('팔로우 상태 확인 중 오류 발생:', error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+};
