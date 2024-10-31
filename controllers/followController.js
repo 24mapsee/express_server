@@ -5,7 +5,7 @@ exports.getFollowers = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const [followers] = await db.query(`
+        const [following] = await db.query(`
             SELECT 
                 u.user_id,
                 u.profile_picture,
@@ -20,7 +20,7 @@ exports.getFollowers = async (req, res) => {
 
         res.status(200).json({
             message: "Followers retrieved successfully",
-            followers
+            following
         });
     } catch (error) {
         console.error("Error fetching followers:", error);
@@ -36,7 +36,7 @@ exports.getFollowing = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const [following] = await db.query(`
+        const [followers] = await db.query(`
             SELECT 
                 u.user_id,
                 u.profile_picture,
@@ -51,7 +51,7 @@ exports.getFollowing = async (req, res) => {
 
         res.status(200).json({
             message: "Following retrieved successfully",
-            following
+            followers
         });
     } catch (error) {
         console.error("Error fetching following:", error);
