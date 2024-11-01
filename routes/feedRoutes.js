@@ -12,8 +12,14 @@ router.post(
   upload.single("image"), // 이미지 파일을 'image' 필드에서 받아옴
   [
     body("user_id").notEmpty().withMessage("User ID is required"),
-    body("place_id").optional().isInt().withMessage("Place ID must be an integer"),
-    body("route_id").optional().isInt().withMessage("Route ID must be an integer"),
+    body("place_id")
+      .optional()
+      .isInt()
+      .withMessage("Place ID must be an integer"),
+    body("route_id")
+      .optional()
+      .isInt()
+      .withMessage("Route ID must be an integer"),
     body("title").notEmpty().withMessage("Title is required"),
     body("description").notEmpty().withMessage("Description is required"),
   ],
@@ -22,6 +28,7 @@ router.post(
 
 // 모든 피드 조회
 router.get("/get-feed", feedController.getFeed);
+router.fetch("/get-feed", feedController.getFeed);
 router.get("/get-feed-detail", feedController.getFeedDetail);
 router.get("/get-feed-test", feedController.getFeedTest);
 
