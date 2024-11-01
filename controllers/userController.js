@@ -69,47 +69,55 @@ exports.registerWithSocial = async (req, res) => {
   const connection = await db.getConnection();
 
   try {
-    if (provider === "google") {
-      // Google 인증 처리
-      // const decodedToken = await admin.auth().verifyIdToken(idToken);
-      const userRecord = await admin.auth().getUser(uid);
-      email = userRecord.email;
-      name = userRecord.displayName;
-      profileImage = userRecord.photoURL;
-    } else if (provider === "kakao") {
-      // Kakao 인증 처리
-      const kakaoUserInfo = await axios.get(
-        "https://kapi.kakao.com/v2/user/me",
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      uid = `kakao_${kakaoUserInfo.data.id}`;
-      email = kakaoUserInfo.data.kakao_account.email;
-    } else if (provider === "naver") {
-      // Naver 인증 처리
-      const naverUserInfo = await axios.get(
-        "https://openapi.naver.com/v1/nid/me",
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-      uid = `naver_${naverUserInfo.data.response.id}`;
-      email = naverUserInfo.data.response.email;
-    }
-
-    // Firebase Custom Token 생성
-    const customToken = await admin.auth().createCustomToken(uid);
-
-    // 데이터베이스에 사용자 정보 저장
-    await connection.execute(
-      "INSERT INTO Users (user_id, email, provider, profile_picture, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE email = VALUES(email), provider = VALUES(provider), profile_picture = VALUES(profile_picture);",
-      [uid, email, provider, profileImage]
+    // 사용자가 DB에 존재하는지 확인
+    const [rows] = await connection.execute(
+      "SELECT * FROM Users WHERE user_id = ?",
+      [uid]
     );
 
-    // 기본 폴더 생성
-    await createDefaultFolder(uid, connection);
+    if (rows.length === 0) {
+      if (provider === "google") {
+        // Google 인증 처리
+        // const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const userRecord = await admin.auth().getUser(uid);
+        email = userRecord.email;
+        name = userRecord.displayName;
+        profileImage = userRecord.photoURL;
+      } else if (provider === "kakao") {
+        // Kakao 인증 처리
+        const kakaoUserInfo = await axios.get(
+          "https://kapi.kakao.com/v2/user/me",
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+        uid = `kakao_${kakaoUserInfo.data.id}`;
+        email = kakaoUserInfo.data.kakao_account.email;
+        const customToken = await admin.auth().createCustomToken(uid);
+      } else if (provider === "naver") {
+        // Naver 인증 처리
+        const naverUserInfo = await axios.get(
+          "https://openapi.naver.com/v1/nid/me",
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+        uid = `naver_${naverUserInfo.data.response.id}`;
+        email = naverUserInfo.data.response.email;
+        const customToken = await admin.auth().createCustomToken(uid);
+      }
 
+      // Firebase Custom Token 생성
+
+      // 데이터베이스에 사용자 정보 저장
+      await connection.execute(
+        "INSERT INTO Users (user_id, password, email, provider, profile_picture, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE email = VALUES(email), provider = VALUES(provider), profile_picture = VALUES(profile_picture);",
+        [uid, uid, email, provider, profileImage]
+      );
+
+      // 기본 폴더 생성
+      await createDefaultFolder(uid, connection);
+    }
     res
       .status(200)
       .json({ message: `${provider} user authenticated`, customToken });
