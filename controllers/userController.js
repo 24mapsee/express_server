@@ -111,8 +111,8 @@ exports.registerWithSocial = async (req, res) => {
 
       // 데이터베이스에 사용자 정보 저장
       await connection.execute(
-        "INSERT INTO Users (user_id, password, email, provider, profile_picture, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE email = VALUES(email), provider = VALUES(provider), profile_picture = VALUES(profile_picture);",
-        [uid, uid, email, provider, profileImage]
+        "INSERT INTO Users (user_id, password, email, name, provider, profile_picture, created_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE email = VALUES(email), provider = VALUES(provider), profile_picture = VALUES(profile_picture);",
+        [uid, uid, email, name, provider, profileImage]
       );
 
       // 기본 폴더 생성
