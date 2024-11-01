@@ -42,8 +42,8 @@ exports.registerNative = async (req, res) => {
 
     // MySQL Users 테이블에 유저 정보 저장
     await connection.execute(
-      "INSERT INTO Users (user_id, local_id, password, name, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
-      [userRecord.uid, userId, hashedPassword, userId]
+      "INSERT INTO Users (user_id, local_id, password, name, email, created_at) VALUES (?, ?, ?, ?, email, CURRENT_TIMESTAMP)",
+      [userRecord.uid, userId, hashedPassword, userId, userId]
     );
 
     // 기본 폴더 생성
