@@ -36,7 +36,8 @@ exports.registerNative = async (req, res) => {
 
     // Firebase에 사용자 생성
     const userRecord = await admin.auth().createUser({
-      password: password, // Firebase에서 고유 UID를 생성하기 위한 비밀번호
+      email: userId,
+      password: password,
     });
 
     // MySQL Users 테이블에 유저 정보 저장
