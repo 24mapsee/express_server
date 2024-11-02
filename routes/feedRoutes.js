@@ -31,4 +31,8 @@ router.get("/get-feed", feedController.getFeed);
 router.post("/get-feed", feedController.getFeed);
 router.get("/get-feed-detail", feedController.getFeedDetail);
 
+// 피드 좋아요/안좋아요
+router.post("/save-feed", feedController.savePost);
+router.post("/save-feed-del", feedController.deleteSavedPost);
+
 module.exports = router;
