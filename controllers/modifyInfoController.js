@@ -25,7 +25,7 @@ exports.updateUserTableData = async (req, res) => {
             local_id = ?, 
             name = ?, 
             phone_number = ?, 
-            birth_date = ?
+            birth_date = ?,
             updated_at = CURRENT_TIMESTAMP
           WHERE 
             user_id = ?
