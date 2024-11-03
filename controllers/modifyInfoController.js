@@ -14,33 +14,55 @@ exports.updateUserTableData = async (req, res) => {
     const userId = decodedToken.uid;
     console.log("Updating userId (Firebase UID):", userId);
 
-    // SQL query to update user information
-    const result = await db.query(
-      `
-          UPDATE Users 
-          SET 
-            profile_picture = ?, 
-            bio = ?, 
-            provider = ?, 
-            local_id = ?, 
-            name = ?, 
-            phone_number = ?, 
-            birth_date = ?,
-            updated_at = CURRENT_TIMESTAMP
-          WHERE 
-            user_id = ?
-        `,
-      [
-        userData.profile_picture,
-        userData.bio,
-        userData.provider,
-        userData.local_id,
-        userData.name,
-        userData.phone_number,
-        userData.birth_date,
-        userId,
-      ]
-    );
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (userData.profile_picture !== null) {
+      fieldsToUpdate.push("profile_picture = ?");
+      values.push(userData.profile_picture);
+    }
+    if (userData.bio !== null) {
+      fieldsToUpdate.push("bio = ?");
+      values.push(userData.bio);
+    }
+    if (userData.provider !== null) {
+      fieldsToUpdate.push("provider = ?");
+      values.push(userData.provider);
+    }
+    if (userData.local_id !== null) {
+      fieldsToUpdate.push("local_id = ?");
+      values.push(userData.local_id);
+    }
+    if (userData.name !== null) {
+      fieldsToUpdate.push("name = ?");
+      values.push(userData.name);
+    }
+    if (userData.phone_number !== null) {
+      fieldsToUpdate.push("phone_number = ?");
+      values.push(userData.phone_number);
+    }
+    if (userData.birth_date !== null) {
+      fieldsToUpdate.push("birth_date = ?");
+      values.push(userData.birth_date);
+    }
+
+    fieldsToUpdate.push("updated_at = CURRENT_TIMESTAMP");
+
+    if (fieldsToUpdate.length === 0) {
+      return res.status(400).json({ message: "No fields to update" });
+    }
+
+    const query = `
+        UPDATE Users 
+        SET 
+          ${fieldsToUpdate.join(", ")}
+        WHERE 
+          user_id = ?
+      `;
+
+    values.push(userId);
+
+    const result = await db.query(query, values);
 
     if (result.affectedRows === 0) {
       return res
