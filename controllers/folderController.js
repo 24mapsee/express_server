@@ -106,3 +106,62 @@ exports.createFolder = async (req, res) => {
     });
   }
 };
+
+// 장소 저장 여부 확인
+exports.isPlaceSaved = async (req, res) => {
+  const { kakao_place_id, user_id } = req.body;
+
+  try {
+    const [rows] = await db.execute(
+      `
+        SELECT 1 FROM Places
+        WHERE kakao_place_id = ? AND user_id = ?
+        LIMIT 1
+      `,
+      [kakao_place_id, user_id]
+    );
+
+    if (rows.length > 0) {
+      res.status(200).json({ is_saved: true });
+    } else {
+      res.status(200).json({ is_saved: false });
+    }
+  } catch (error) {
+    console.error("Error checking if place is saved:", error);
+    res.status(500).json({
+      message: "Error checking if place is saved",
+      error: error.message,
+    });
+  }
+};
+
+//  장소 삭제
+exports.deletePlaceFromFolder = async (req, res) => {
+  const { place_id, user_id } = req.body;
+
+  try {
+    const [result] = await db.execute(
+      `
+        DELETE FROM Places
+        WHERE id = ? AND user_id = ?
+      `,
+      [place_id, user_id]
+    );
+
+    if (result.affectedRows > 0) {
+      res.status(200).json({
+        message: "Place deleted successfully",
+      });
+    } else {
+      res.status(404).json({
+        message: "Place not found or user not authorized",
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting place:", error);
+    res.status(500).json({
+      message: "Error deleting place",
+      error: error.message,
+    });
+  }
+};
