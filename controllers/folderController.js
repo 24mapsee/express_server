@@ -137,15 +137,15 @@ exports.isPlaceSaved = async (req, res) => {
 
 //  장소 삭제
 exports.deletePlaceFromFolder = async (req, res) => {
-  const { place_id, user_id } = req.body;
+  const { kakao_place_id, user_id } = req.body;
 
   try {
     const [result] = await db.execute(
       `
         DELETE FROM Places
-        WHERE id = ? AND user_id = ?
+        WHERE kakao_place_id = ? AND user_id = ?
       `,
-      [place_id, user_id]
+      [kakao_place_id, user_id]
     );
 
     if (result.affectedRows > 0) {
