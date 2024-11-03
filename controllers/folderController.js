@@ -63,7 +63,7 @@ exports.addPlaceToFolder = async (req, res) => {
   try {
     await db.execute(
       `
-            INSERT INTO Places (folder_id, name, mapX, mapY, kakao_place_id, saved_at)
+            INSERT INTO Places (folder_id, name, mapX, mapY, kakao_place_id, user_id, saved_at)
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `,
       [folder_id, name, mapX, mapY, kakao_place_id, user_id]
