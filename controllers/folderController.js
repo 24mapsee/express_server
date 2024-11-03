@@ -35,7 +35,7 @@ exports.getPlacesInFolder = async (req, res) => {
     // Places 테이블에서 특정 folder_id를 기준으로 장소 목록 조회
     const [places] = await db.execute(
       `
-        SELECT place_id, name, address, latitude, longitude, description, saved_at
+        SELECT place_id, folder_id, name, kakao_place_id, address, mapX, mapY, saved_at
         FROM Places
         WHERE folder_id = ?
       `,
@@ -58,16 +58,15 @@ exports.getPlacesInFolder = async (req, res) => {
 
 // 특정 폴더에 장소 저장
 exports.addPlaceToFolder = async (req, res) => {
-  const { folder_id, name, address, latitude, longitude, description } =
-    req.body;
+  const { folder_id, name, address, mapX, mapY, kakao_place_id } = req.body;
 
   try {
     await db.execute(
       `
-            INSERT INTO Places (folder_id, name, address, latitude, longitude, description, saved_at)
+            INSERT INTO Places (folder_id, name, address, mapX, mapY, kakao_place_id, saved_at)
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `,
-      [folder_id, name, address, latitude, longitude, description]
+      [folder_id, name, address, mapX, mapY, kakao_place_id]
     );
 
     res.status(201).json({
