@@ -58,15 +58,15 @@ exports.getPlacesInFolder = async (req, res) => {
 
 // 특정 폴더에 장소 저장
 exports.addPlaceToFolder = async (req, res) => {
-  const { folder_id, name, mapX, mapY, kakao_place_id } = req.body;
+  const { folder_id, name, mapX, mapY, kakao_place_id, user_id } = req.body;
 
   try {
     await db.execute(
       `
             INSERT INTO Places (folder_id, name, mapX, mapY, kakao_place_id, saved_at)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `,
-      [folder_id, name, mapX, mapY, kakao_place_id]
+      [folder_id, name, mapX, mapY, kakao_place_id, user_id]
     );
 
     res.status(201).json({
