@@ -98,16 +98,14 @@ exports.getUserTableData = async (req, res) => {
   const { idToken } = req.body;
 
   try {
-    // Verify the Firebase ID token and get the user's UID
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const userId = decodedToken.uid; // UID from Firebase token
+    const userId = decodedToken.uid;
     console.log("Requested userId (Firebase UID):", userId);
 
-    // Fetch user information along with feed count, following count, follower count, and likes count
     const [userData] = await db.query(
       `
               SELECT 
-                  *
+                  user_id, email, profile_picture, bio, provider, local_id, name, phone_number, birth_date
               FROM 
                   Users u
               WHERE 
@@ -116,7 +114,6 @@ exports.getUserTableData = async (req, res) => {
       [userId]
     );
 
-    // Check if user was found
     if (!userData || userData.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
