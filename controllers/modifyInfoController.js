@@ -6,13 +6,13 @@ exports.updateUserTableData = async (req, res) => {
   const { idToken, userData } = req.body; // Expecting userData to contain the fields to update
 
   try {
+    if (!userData || !idToken) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const userId = decodedToken.uid;
     console.log("Updating userId (Firebase UID):", userId);
-
-    if (!userData || !userData.email || !userData.name) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
 
     // SQL query to update user information
     const result = await db.query(
